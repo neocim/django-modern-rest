@@ -161,7 +161,7 @@ class NewCookie(_BaseCookie):
 
 def set_cookies(
     response: HttpResponseBase,
-    cookies: Mapping[str, NewCookie] | None = None,
+    cookies: Mapping[str, NewCookie] | None,
 ) -> None:
     """Set cookies for the HTTP response."""
     if cookies:
