@@ -55,7 +55,6 @@ Response, headers and cookies
   :members:
 
 .. autofunction:: dmr.cookies.set_cookies
-  :members:
 
 
 Validation
