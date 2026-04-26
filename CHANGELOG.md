@@ -25,14 +25,15 @@ of requirements for an API to count as public.
 - *Breaking*: Renamed `APIRedirectError` to `RedirectTo`, #922
 - *Breaking*: Split `BaseThrottleBackend` into `BaseThrottleAsyncBackend`
   and `BaseThrottleSyncBackend`, #942
-- *Breaking*: Renamed `DjangoCache` into `DjangoSyncCache`,
-  added `DjangoAsyncCache`, #942
+- *Breaking*: Renamed `DjangoCache` into `SyncDjangoCache`,
+  added `AsyncDjangoCache`, #942
 - *Breaking*: Changed `BaseThrottleBackend` API: now it requires
   `.incr` and `.get` methods, the first one should ideally
   be an atomic increment, the second one is for reading objects only, #942
 - *Breaking*: Removed `BaseThrottleAlgorithm.record` method,
   now `BaseThrottleAlgorithm.access` must also record accesses.
   This will help to make throttling more atomic, #942
+- Added `SyncRedis` and `AsyncRedis` throttling backends, #977
 - Added `RefreshTokenSyncController` and `RefreshTokenAsyncController`
   to issue new access/refresh token pairs from a valid refresh token, #907
 - Added `validate_negotiation` metadata flag, so we can explicitly validate,
@@ -65,7 +66,7 @@ of requirements for an API to count as public.
 ### Misc
 
 - Optimized `dmr_client` and `dmr_rf` test fixtures to use `msgspec`
-  for JSON encoding when available, #889
+  for JSON encoding and decoding when available, #889 and #976
 - Optimized how per-endpoint throttle locks are used, #942
 
 

@@ -20,10 +20,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        docker-compose-services: ['redis']
         python-version: ['3.11', '3.12', '3.13', '3.14']
         include:
           - python-version: '3.14t'
             force_free_gil: true
+            docker-compose-services: 'redis'
 
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -41,10 +43,16 @@ jobs:
     - name: Install just
       run: uv tool install rust-just
 
+    - name: Pull and build docker compose services
+      if: ${{ matrix.docker-compose-services }}
+      run: |
+        docker compose pull ${{ matrix.docker-compose-services }}
+        docker compose up --detach ${{ matrix.docker-compose-services }}
+
     - name: Install dependencies
       run: |
         # System deps:
-        sudo apt install -y gettext
+        sudo apt update && sudo apt install -y gettext wait-for-it
 
         # Python deps:
         just install
@@ -53,10 +61,14 @@ jobs:
         # No way to exclude the platform on a file level.
         uv pip install orjson || true
 
+    - name: Wait for Redis to come online
+      if: ${{ matrix.docker-compose-services }}
+      run: wait-for-it --host='localhost' --port=6379 --timeout=30 --strict
+
     - name: Run checks
+      run: just test
       env:
         PYTHON_GIL: ${{ matrix.force_free_gil && '0' || '1' }}
-      run: just test
 
     # Upload coverage to codecov: https://codecov.io/
     - name: Upload coverage to Codecov
@@ -67,3 +79,7 @@ jobs:
 
     - name: Tracecov report
       run: cat tracecov-report.md >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Stop docker compose services
+      if: ${{ always() && matrix.docker-compose-services }}
+      run: docker compose down || true
